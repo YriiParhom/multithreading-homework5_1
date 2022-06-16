@@ -1,1 +1,1 @@
-# multithreading-homework5_1
+# Тяжелые вычисления
