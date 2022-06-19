@@ -7,10 +7,14 @@ import java.util.Scanner;
 
 public class Client {
     public static void main(String[] args) throws IOException {
-        InetSocketAddress socketAddress = new InetSocketAddress("127.0.0.1", 8088);
+        InetSocketAddress socketAddress = new InetSocketAddress("127.0.0.1", 8089);
         final SocketChannel socketChannel = SocketChannel.open();
 
         socketChannel.connect(socketAddress);
+
+        if (socketChannel.isConnected()) {
+            System.out.println("Соединение установлено...");
+        }
 
         try (Scanner scanner = new Scanner(System.in)) {
             final ByteBuffer inputBuffer = ByteBuffer.allocate(2 << 10);
@@ -22,7 +26,6 @@ public class Client {
 
                 socketChannel.write(ByteBuffer.wrap(msg.getBytes(StandardCharsets.UTF_8)));
 
-                Thread.sleep(7000);
 
                 int bytesCount = socketChannel.read(inputBuffer);
                 System.out.println(new String(inputBuffer.array(), 0, bytesCount,
@@ -30,7 +33,7 @@ public class Client {
                 inputBuffer.clear();
             }
 
-        } catch (InterruptedException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         } finally {
             socketChannel.close();
