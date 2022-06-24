@@ -1,42 +1,28 @@
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
-import java.nio.channels.SocketChannel;
-import java.nio.charset.StandardCharsets;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
 import java.util.Scanner;
 
 public class Client {
     public static void main(String[] args) throws IOException {
-        InetSocketAddress socketAddress = new InetSocketAddress("127.0.0.1", 8089);
-        final SocketChannel socketChannel = SocketChannel.open();
+        Socket socket = new Socket("127.0.0.1", 8088);
 
-        socketChannel.connect(socketAddress);
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+             Scanner scanner = new Scanner(System.in)) {
 
-        if (socketChannel.isConnected()) {
-            System.out.println("Соединение установлено...");
-        }
-
-        try (Scanner scanner = new Scanner(System.in)) {
-            final ByteBuffer inputBuffer = ByteBuffer.allocate(2 << 10);
             String msg;
             while (true) {
-                System.out.println("Введите число: ");
+                System.out.println("Введите число, чтобы узнать какое число кроется под этим номером в ряде Фибоначчи...");
                 msg = scanner.nextLine();
-                if ("end".equals(msg)) break;
-
-                socketChannel.write(ByteBuffer.wrap(msg.getBytes(StandardCharsets.UTF_8)));
-
-
-                int bytesCount = socketChannel.read(inputBuffer);
-                System.out.println(new String(inputBuffer.array(), 0, bytesCount,
-                        StandardCharsets.UTF_8).trim());
-                inputBuffer.clear();
+                out.println(msg);
+                if (msg.equals("end") || msg.equals("утв")) break;
+                System.out.println(in.readLine());
             }
-
         } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            socketChannel.close();
         }
     }
 }
